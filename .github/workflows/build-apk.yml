@@ -11,14 +11,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Unpack Lumio Store
+      - name: Unpack Lumio Store project
         run: |
+          rm -rf lumio
           mkdir lumio
-          unzip LumioStore_Full_GitHub.zip -d lumio
-          ls -la lumio/LumioStore
+          unzip LumioStore_White_v2_GitHub.zip -d lumio
+          echo "Project files:"
+          find lumio -maxdepth 3 -type f
 
       - name: Setup Java 17
         uses: actions/setup-java@v4
@@ -39,8 +41,14 @@ jobs:
           cd lumio/LumioStore
           gradle :app:assembleDebug
 
-      - name: Upload APK
+      - name: Check APK
+        run: |
+          ls -lh lumio/LumioStore/app/build/outputs/apk/debug/
+          test -f lumio/LumioStore/app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Upload Lumio Store APK
         uses: actions/upload-artifact@v4
         with:
-          name: LumioStore-APK
+          name: LumioStore-White-v2-APK
           path: lumio/LumioStore/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
