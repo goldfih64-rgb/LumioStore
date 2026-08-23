@@ -1,0 +1,58 @@
+name: Build Lumio Store APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get project
+        uses: actions/checkout@v4
+
+      - name: Unpack Lumio Store
+        run: |
+          mkdir lumio
+          unzip LumioStore_Full_GitHub.zip -d lumio
+          echo "Project unpacked:"
+          find lumio -maxdepth 3 -type f
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Find and build Android project
+        run: |
+          cd lumio
+          GRADLE=$(find . -name gradlew -type f | head -1)
+
+          if [ -z "$GRADLE" ]; then
+            echo "ERROR: gradlew not found in ZIP"
+            exit 1
+          fi
+
+          DIR=$(dirname "$GRADLE")
+          cd "$DIR"
+
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Collect APK
+        run: |
+          mkdir apk-output
+          find lumio -type f -name "*.apk" -exec cp {} apk-output/ \;
+
+      - name: Upload Lumio Store APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: LumioStore-Android
+          path: apk-output/*.apk
