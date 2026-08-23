@@ -18,7 +18,7 @@ jobs:
         run: |
           rm -rf lumio
           mkdir lumio
-          unzip LumioStore_White_v2_GitHub.zip -d lumio
+          unzip LumioStore_White_v3_GitHub.zip -d lumio
           echo "Project files:"
           find lumio -maxdepth 3 -type f
 
